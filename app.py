@@ -13,4 +13,4 @@ from resources.image_set import ImageSetRoute
 api.add_resource(ImageSetRoute, '/')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

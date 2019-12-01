@@ -13,11 +13,15 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: flask
       MONGO_INITDB_DATABASE: flask_db
 
-  # mongo-express:
-  #   image: mongo-express
-  #   restart: always
-  #   ports:
-  #     - 8081:8081
-  #   environment:
-  #     ME_CONFIG_MONGODB_ADMINUSERNAME: flask
-  #     ME_CONFIG_MONGODB_ADMINPASSWORD: flask
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+        ME_CONFIG_MONGODB_SERVER: "db"
+        ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+        ME_CONFIG_MONGODB_ADMINUSERNAME : 'flask'
+        ME_CONFIG_MONGODB_ADMINPASSWORD : 'flask'
+    depends_on:
+        - db

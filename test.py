@@ -89,42 +89,80 @@ class UtilsTestCase(unittest.TestCase):
                 )
 
 
-@unittest.skip('no')
+# @unittest.skip('Working')
 class DBTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.maxDiff = None
         from flask_pymongo import PyMongo
         import gridfs
-        self.app= app.app
-        self.mongo= PyMongo(
+        self.app = app.app
+        self.mongo = PyMongo(
                     self.app,
                     uri="mongodb://flask:flask@localhost:27017/test_database?authSource=admin",
                 )
 
-        self.fs_db= PyMongo(
-                    self.app,
-                    uri="mongodb://flask:flask@localhost:27017/test_gridfs?authSource=admin",
-                )
-        self.fs= gridfs.GridFS(self.fs_db.db)
 
     def tearDown(self):
         self.mongo.db.command('dropDatabase')
 
     def test_db_init(self):
         self.assertEqual(self.mongo.db.name, 'test_database')
-        self.assertEqual(self.fs_db.db.name, 'test_gridfs')
 
     def test_db_create_coll(self):
         self.assertEqual(self.mongo.db.create_collection('test_coll').name, 'test_coll')
 
-    def test_db_fs_init(self):
-        self.assertEqual(self.fs_db.db.name, 'test_gridfs')
+    def test_db_image_put_and_get(self):
+        from os import walk
+        images = []
+        for (_, _, filenames) in walk('for_test'):
+            images.extend(filenames)
+        dataset = {
+                "name": 'cats',
+                "length": len(images),
+                "images" : []
+                }
+        img_set = ''
+        for image in images:
+            with open(f'for_test/{ image }', "rb") as f:
+                img_set = f.read()
+                dataset[ "images" ].append({
+                        "name": image,
+                        "binData": img_set
+                    })
+        post_id = self.mongo.db.datasets.insert_one(dataset).inserted_id
+        self.assertEqual(self.mongo.db.datasets.find_one({"_id": post_id})[ "images" ][-1]["binData"], img_set)
 
-    def test_db_fs_put_and_get(self):
-        test_input = self.fs.put(b"test")
-        self.assertEqual(self.fs.get(test_input).read(), b"test")
 
-@unittest.skip('')
+@unittest.skip("Not now")
+class ModelTestCase(DBTestCase):
+    def setUp(self):
+        DBTestCase.setUp(self)
+        from models.dataset import DataSet
+        self.ds_inst = DataSet(self.mongo, 'cats')
+
+    def tearDown(self):
+        pass
+        # self.mongo.db.command('dropDatabase')
+
+    @unittest.skip("Not now")
+    def test__init__(self):
+        from models.dataset import DataSet
+        self.assertEqual(type(self.ds_inst), type(DataSet()))
+
+    def test_get_dataset(self):
+        pass
+
+    @unittest.skip('Not now')
+    def test_put_dataset(self):
+        with open('for_test/cats_0', "rb") as f:
+            fs_id = self.mongo.put(f.read(), filename = 'test.jpg')
+            self.assertEqual(self.fs.get(fs_id).filename, 'test.jpg')
+
+    def test_delete_image_by_url(self):
+        pass
+
+@unittest.skip('Not now')
 class ImageCrapperTestCase(unittest.TestCase):
     def setUp(self):
         self.host = "http://localhost:5000"
