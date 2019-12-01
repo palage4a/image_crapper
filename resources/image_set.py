@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from utils import Utils
 
-class ImageSet(Resource):
+class ImageSetRoute(Resource):
     def __init__(self):
         self.engine_url = "https://bing.com"
         self.query_uri = "/images/async?q=%s&first=%s&count=%s"

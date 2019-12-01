@@ -1,0 +1,23 @@
+version: '3.1'
+services:
+  db:
+    image: mongo
+    restart: always
+    ports:
+        - 27017-27019:27017-27019
+    # volumes:
+        # - ./mongo/datadir:/data/db
+        # - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: flask
+      MONGO_INITDB_ROOT_PASSWORD: flask
+      MONGO_INITDB_DATABASE: flask_db
+
+  # mongo-express:
+  #   image: mongo-express
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: flask
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: flask

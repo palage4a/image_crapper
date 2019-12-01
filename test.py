@@ -6,11 +6,12 @@ import bs4
 import app
 from utils import Utils
 
+@unittest.skip("Working")
 class UtilsTestCase(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-        self.imageSet_inst = app.ImageSet()
+        self.imageSet_inst = app.ImageSetRoute()
         self.engine_url = self.imageSet_inst.engine_url
         self.dataset = 'cats'
         self.header = {
@@ -69,7 +70,6 @@ class UtilsTestCase(unittest.TestCase):
                )
 
 
-    @unittest.skip('')
     def test_download_image(self):
         test_query = f"{self.engine_url}{self.query_uri}"
         page = Utils.get_soup_page(test_query)
@@ -91,7 +91,38 @@ class UtilsTestCase(unittest.TestCase):
 
 @unittest.skip('no')
 class DBTestCase(unittest.TestCase):
-    pass
+
+    def setUp(self):
+        from flask_pymongo import PyMongo
+        import gridfs
+        self.app= app.app
+        self.mongo= PyMongo(
+                    self.app,
+                    uri="mongodb://flask:flask@localhost:27017/test_database?authSource=admin",
+                )
+
+        self.fs_db= PyMongo(
+                    self.app,
+                    uri="mongodb://flask:flask@localhost:27017/test_gridfs?authSource=admin",
+                )
+        self.fs= gridfs.GridFS(self.fs_db.db)
+
+    def tearDown(self):
+        self.mongo.db.command('dropDatabase')
+
+    def test_db_init(self):
+        self.assertEqual(self.mongo.db.name, 'test_database')
+        self.assertEqual(self.fs_db.db.name, 'test_gridfs')
+
+    def test_db_create_coll(self):
+        self.assertEqual(self.mongo.db.create_collection('test_coll').name, 'test_coll')
+
+    def test_db_fs_init(self):
+        self.assertEqual(self.fs_db.db.name, 'test_gridfs')
+
+    def test_db_fs_put_and_get(self):
+        test_input = self.fs.put(b"test")
+        self.assertEqual(self.fs.get(test_input).read(), b"test")
 
 @unittest.skip('')
 class ImageCrapperTestCase(unittest.TestCase):
