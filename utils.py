@@ -7,11 +7,11 @@ from functools import reduce
 
 class Utils:
     header = {
-            'User-Agent' :
-                'Mozilla/5.0 (X11; Linux x86_64) \
-                AppleWebKit/537.36 (KHTML, like Gecko) \
-                Chrome/78.0.3904.108 Safari/537.36'
-            }
+            'User-Agent':
+                    'Mozilla/5.0 (X11; Linux x86_64) \
+                    AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/78.0.3904.108 Safari/537.36'
+                    }
     @staticmethod
     def get_soup_page(url):
         res = requests.get(url, headers = Utils.header)

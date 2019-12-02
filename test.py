@@ -89,7 +89,6 @@ class UtilsTestCase(unittest.TestCase):
                 )
 
 
-# @unittest.skip('Working')
 class DBTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -106,12 +105,15 @@ class DBTestCase(unittest.TestCase):
     def tearDown(self):
         self.mongo.db.command('dropDatabase')
 
+    @unittest.skip("work")
     def test_db_init(self):
         self.assertEqual(self.mongo.db.name, 'test_database')
 
+    @unittest.skip("work")
     def test_db_create_coll(self):
         self.assertEqual(self.mongo.db.create_collection('test_coll').name, 'test_coll')
 
+    # @unittest.skip("work")
     def test_db_image_put_and_get(self):
         from os import walk
         images = []
@@ -133,23 +135,24 @@ class DBTestCase(unittest.TestCase):
         post_id = self.mongo.db.datasets.insert_one(dataset).inserted_id
         self.assertEqual(self.mongo.db.datasets.find_one({"_id": post_id})[ "images" ][-1]["binData"], img_set)
 
-
 @unittest.skip("Not now")
 class ModelTestCase(DBTestCase):
     def setUp(self):
         DBTestCase.setUp(self)
         from models.dataset import DataSet
-        self.ds_inst = DataSet(self.mongo, 'cats')
+        self.ds_inst = DataSet(self.mongo, name = "test", links = [1,2,3,4])
 
     def tearDown(self):
         pass
         # self.mongo.db.command('dropDatabase')
 
-    @unittest.skip("Not now")
     def test__init__(self):
         from models.dataset import DataSet
-        self.assertEqual(type(self.ds_inst), type(DataSet()))
+        self.ds_inst = DataSet(self.mongo, name = "test", links = [1,2,3,4])
+        self.assertEqual(self.ds_inst.name, 'test')
+        self.assertEqual(type(self.ds_inst), type(DataSet(self.mongo, name="test", links="")))
 
+    @unittest.skip("Not now")
     def test_get_dataset(self):
         pass
 
@@ -159,10 +162,11 @@ class ModelTestCase(DBTestCase):
             fs_id = self.mongo.put(f.read(), filename = 'test.jpg')
             self.assertEqual(self.fs.get(fs_id).filename, 'test.jpg')
 
+    @unittest.skip("Not now")
     def test_delete_image_by_url(self):
         pass
 
-@unittest.skip('Not now')
+# @unittest.skip('Not now')
 class ImageCrapperTestCase(unittest.TestCase):
     def setUp(self):
         self.host = "http://localhost:5000"
@@ -171,24 +175,39 @@ class ImageCrapperTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip('because')
+    @unittest.skip('Not now')
     def test_get_req(self):
         result_json = {
-                "train" : [],
-                "test" : []
+                "train" : [ i for i in range( 0, 81 ) ],
+                "test" : [ i for i in range( 0, 21 )]
                 }
-        res = self.app.get(f'{ self.host }/?dataset=cats')
+        res = self.app.get(f'{ self.host }/?dataset=cars')
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.get_json(), {'status': 'get'})
 
-    @unittest.skip("because")
+        self.assertEqual(res.get_json(), {"status": "get"})
+        self.assertEqual(
+                    len( res.get_json()['train'] ),
+                    80
+                )
+
+        self.assertEqual(
+                    len( res.get_json()['test'] ),
+                    20
+                )
+
+    # @unittest.skip('Not now')
     def test_post_req(self):
-        res = self.app.post(f'{ self.host }/?dataset=cats&size=10')
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.get_json(), {'status': 'post'})
 
-    @unittest.skip('because')
+        # TODO: assert prev state set and current ( after posting and getting set)
+        res = self.app.post(f'{ self.host }/', data = dict(dataset="cars", size="10"))
+        self.assertEqual(res.status_code, 200)
+        # self.assertEqual(res.get_json(), {'status': 'ok'})
+
+    @unittest.skip('Not now')
     def test_delete_req(self):
+
+        # TODO: assert prev state set and current ( after delete )
+
         res = self.app.delete(f'{self.host}/?image=cats.jpg')
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.get_json(), {'status': 'delete'})
+        self.assertEqual(res.get_json(), {'status': 'ok'})
